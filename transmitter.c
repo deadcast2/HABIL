@@ -17,36 +17,42 @@ void resetRadio()
 	bcm2835_delay(100);
 }
 
-void configureRadio(RH_RF95 handle)
+RH_RF95 configureRadio(RH_RF95 radio)
 {
-	handle.setFrequency(RF_FREQUENCY);
-	handle.setThisAddress(RF_NODE_ID);
-	handle.setHeaderFrom(RF_NODE_ID);
-	handle.setHeaderTo(RF_GATEWAY_ID);
+	radio.setFrequency(RF_FREQUENCY);
+	radio.setThisAddress(RF_NODE_ID);
+	radio.setHeaderFrom(RF_NODE_ID);
+	radio.setHeaderTo(RF_GATEWAY_ID);
+	return radio;
+}
+
+RH_RF95 getRadio()
+{
+	if(!bcm2835_init())
+	{
+		fprintf(stderr, "Error loading the BCM2835 library\n");
+		return NULL;
+	}
+	
+	RH_RF95 radio(RF_CS_PIN);
+	resetRadio();
+	
+	if(!radio.init())
+	{
+		fprintf(stderr, "Error initializing the radio\n");
+		return NULL;
+	}
+
+	return configuredRadio(radio);
 }
 
 int main()
 {
-	if(!bcm2835_init())
-	{
-		fprintf(stderr, "Could not initialize BCM2835\n");
-		return 1;
-	}
-	
-	RH_RF95 rf95(RF_CS_PIN);
-	resetRadio();
-	
-	if(!rf95.init())
-	{
-		fprintf(stderr, "RF95 module initialization failed\n");
-		return 1;
-	}
+	RH_RF95 radio = getRadio();
+	if(!radio) return 1;
 
-	configureRadio(rf95);
+	uint8_t data[] = "some jp2 data here";
+	radio.send(data, sizeof(data));
 
-	uint8_t data[] = "Message from transmitter!!!";
-	rf95.send(data, sizeof(data));
-	
-	bcm2835_close();
-	return 0;
+	return !bcm2835_close();
 }
