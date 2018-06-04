@@ -2,8 +2,8 @@
 #include <RH_RF95.h>
 #include <stdio.h>
 
-#define RF_CS_PIN  		RPI_V2_GPIO_P1_24
-#define RF_RST_PIN 		RPI_V2_GPIO_P1_15
+#define RF_CS_PIN		RPI_V2_GPIO_P1_24
+#define RF_RST_PIN		RPI_V2_GPIO_P1_15
 #define RF_FREQUENCY	868.00
 #define RF_GATEWAY_ID	1 
 #define RF_NODE_ID		10
