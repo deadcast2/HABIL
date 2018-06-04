@@ -20,9 +20,9 @@ void resetRadio()
 void configureRadio(RH_RF95 handle)
 {
 	handle.setFrequency(RF_FREQUENCY);
-    handle.setThisAddress(RF_NODE_ID);
-    handle.setHeaderFrom(RF_NODE_ID);
-    handle.setHeaderTo(RF_GATEWAY_ID);
+	handle.setThisAddress(RF_NODE_ID);
+	handle.setHeaderFrom(RF_NODE_ID);
+	handle.setHeaderTo(RF_GATEWAY_ID);
 }
 
 int main()
@@ -41,11 +41,11 @@ int main()
 		fprintf(stderr, "RF95 module initialization failed\n");
 		return 1;
 	}
-	
+
 	configureRadio(rf95);
-    
-    uint8_t data[] = "Message from transmitter!!!";    
-    rf95.send(data, sizeof(data));
+
+	uint8_t data[] = "Message from transmitter!!!";
+	rf95.send(data, sizeof(data));
 	
 	bcm2835_close();
 	return 0;
