@@ -17,16 +17,16 @@ void resetRadio()
 	bcm2835_delay(100);
 }
 
-RH_RF95 configureRadio(RH_RF95 radio)
+RH_RF95 *configureRadio(RH_RF95 *radio)
 {
-	radio.setFrequency(RF_FREQUENCY);
-	radio.setThisAddress(RF_NODE_ID);
-	radio.setHeaderFrom(RF_NODE_ID);
-	radio.setHeaderTo(RF_GATEWAY_ID);
+	radio->setFrequency(RF_FREQUENCY);
+	radio->setThisAddress(RF_NODE_ID);
+	radio->setHeaderFrom(RF_NODE_ID);
+	radio->setHeaderTo(RF_GATEWAY_ID);
 	return radio;
 }
 
-RH_RF95 getRadio()
+RH_RF95 *getRadio()
 {
 	if(!bcm2835_init())
 	{
@@ -34,25 +34,31 @@ RH_RF95 getRadio()
 		return NULL;
 	}
 	
-	RH_RF95 radio(RF_CS_PIN);
+	RH_RF95 *radio = new RH_RF95(RF_CS_PIN);
 	resetRadio();
 	
-	if(!radio.init())
+	if(!radio->init())
 	{
 		fprintf(stderr, "Error initializing the radio\n");
 		return NULL;
 	}
 
-	return configuredRadio(radio);
+	return configureRadio(radio);
+}
+
+int cleanup(RH_RF95 *radio)
+{
+	free(radio);
+	return !bcm2835_close();
 }
 
 int main()
 {
-	RH_RF95 radio = getRadio();
-	if(!radio) return 1;
+	RH_RF95 *radio = getRadio();
+	if(radio == NULL) return 1;
 
 	uint8_t data[] = "some jp2 data here";
-	radio.send(data, sizeof(data));
+	radio->send(data, sizeof(data));
 
-	return !bcm2835_close();
+	return cleanup(radio);
 }
