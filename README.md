@@ -13,12 +13,12 @@ High Altitude Balloon Imaging via LoRa
 
 `git submodule update --init`
 
-3. Compile the program
+4. Compile the program
 
 `make`
 
-4. Next paste the line from the cron file into your crontab:
+5. Next paste the line from the cron file into your crontab:
 
 `sudo crontab -e`
 
-5. Done!
+6. Done!
