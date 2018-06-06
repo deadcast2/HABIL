@@ -54,8 +54,8 @@ int main()
     FILE *latestPhoto = fopen("photo.jp2", "rb");
     if(!latestPhoto) return 1;
     
-    uint8_t payloadBuffer[RH_RF95_MAX_MESSAGE_LEN];
-    while(fread(payloadBuffer, 1, RH_RF95_MAX_MESSAGE_LEN, latestPhoto))
+    uint8_t payloadBuffer[RH_RF95_MAX_MESSAGE_LEN/2];
+    while(fread(payloadBuffer, 1, sizeof(payloadBuffer), latestPhoto))
     {
         radio->send(payloadBuffer, sizeof(payloadBuffer));
         bcm2835_delay(1000);
