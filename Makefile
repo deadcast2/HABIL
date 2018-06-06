@@ -4,12 +4,12 @@ LIBS          = -lbcm2835
 RADIOHEADBASE = ../RadioHead
 INCLUDE       = -I$(RADIOHEADBASE)
 
-all: transmitter
+all: transmit_photo
 
 RasPi.o: $(RADIOHEADBASE)/RHutil/RasPi.cpp
 	$(CC) $(CFLAGS) -c $(RADIOHEADBASE)/RHutil/RasPi.cpp $(INCLUDE)
 
-transmitter.o: transmitter.c
+transmit_photo.o: transmit_photo.c
 	$(CC) $(CFLAGS) -c $(INCLUDE) $<
 
 RH_RF95.o: $(RADIOHEADBASE)/RH_RF95.cpp
@@ -30,8 +30,8 @@ RHGenericDriver.o: $(RADIOHEADBASE)/RHGenericDriver.cpp
 RHGenericSPI.o: $(RADIOHEADBASE)/RHGenericSPI.cpp
 	$(CC) $(CFLAGS) -c $(INCLUDE) $<
 
-transmitter: transmitter.o RH_RF95.o RasPi.o RHHardwareSPI.o RHGenericDriver.o RHGenericSPI.o RHSPIDriver.o
-	$(CC) $^ $(LIBS) -o transmitter
+transmit_photo: transmit_photo.o RH_RF95.o RasPi.o RHHardwareSPI.o RHGenericDriver.o RHGenericSPI.o RHSPIDriver.o
+	$(CC) $^ $(LIBS) -o transmit_photo
 
 clean:
-	rm -rf *.o transmitter
+	rm -rf *.o transmit_photo *.jp2

@@ -51,10 +51,6 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
-# VS Junk
-bin/
-obj/
-.vs/
-packages/
-*.suo
-*.user
+transmit_photo
+*.jpg
+*.jp2

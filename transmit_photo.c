@@ -46,19 +46,22 @@ RH_RF95 *getRadio()
 	return configureRadio(radio);
 }
 
-int cleanup(RH_RF95 *radio)
-{
-	free(radio);
-	return !bcm2835_close();
-}
-
 int main()
 {
 	RH_RF95 *radio = getRadio();
 	if(radio == NULL) return 1;
-
-	uint8_t data[] = "some jp2 data here";
-	radio->send(data, sizeof(data));
-
-	return cleanup(radio);
+	
+	FILE *latestPhoto = fopen("photo.jp2", "rb");
+	if(!latestPhoto) return 1;
+  
+  uint8_t payloadBuffer[RH_RF95_MAX_MESSAGE_LEN];
+  while(fread(payloadBuffer, 1, RH_RF95_MAX_MESSAGE_LEN, latestPhoto))
+  {
+    radio->send(payloadBuffer, sizeof(payloadBuffer));
+    bcm2835_delay(2000);
+  }
+  
+  fclose(latestPhoto);
+  free(radio);
+	return !bcm2835_close();
 }

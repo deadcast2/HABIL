@@ -1,2 +1,2 @@
 # Capture and send a new photo every minute.
-*/1 * * * * /home/Workspace/HABIL/capture.sh
+* * * * * /home/pi/Workspace/HABIL/capture.sh
