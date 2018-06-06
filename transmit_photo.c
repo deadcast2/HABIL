@@ -32,7 +32,7 @@ RH_RF95 *getRadio()
     {
         fprintf(stderr, "Error loading the BCM2835 library\n");
         return NULL;
-	}
+    }
 
     RH_RF95 *radio = new RH_RF95(RF_CS_PIN);
     resetRadio();
