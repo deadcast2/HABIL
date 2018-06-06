@@ -1,7 +1,7 @@
 CC            = g++
 CFLAGS        = -DRASPBERRY_PI -DBCM2835_NO_DELAY_COMPATIBILITY
 LIBS          = -lbcm2835
-RADIOHEADBASE = ../RadioHead
+RADIOHEADBASE = RadioHead
 INCLUDE       = -I$(RADIOHEADBASE)
 
 all: transmit_photo

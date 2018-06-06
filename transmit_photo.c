@@ -58,7 +58,7 @@ int main()
   while(fread(payloadBuffer, 1, RH_RF95_MAX_MESSAGE_LEN, latestPhoto))
   {
     radio->send(payloadBuffer, sizeof(payloadBuffer));
-    bcm2835_delay(2000);
+    bcm2835_delay(1000);
   }
   
   fclose(latestPhoto);
