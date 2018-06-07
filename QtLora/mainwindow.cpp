@@ -16,7 +16,7 @@ MainWindow::MainWindow(QWidget *parent) :
     serialPort->setParity(QSerialPort::NoParity);
     serialPort->setStopBits(QSerialPort::OneStop);
     serialPort->setFlowControl(QSerialPort::NoFlowControl);
-    if(!serialPort->open(QIODevice::ReadWrite))
+    if(!serialPort->open(QIODevice::ReadOnly))
     {
         QMessageBox::critical(this, tr("Error"), tr("Could not open COM3 port"));
     }
@@ -32,5 +32,29 @@ MainWindow::~MainWindow()
 void MainWindow::readData()
 {
     const QByteArray data = serialPort->readAll();
-    int i = 0;
+
+    QByteArray jp2Header = QByteArray("\x6a\x50", 2);
+    if(data.indexOf(jp2Header) > -1)
+    {
+        transmissionState = TransmissionState::Receiving;
+    }
+
+    QByteArray jp2Footer = QByteArray("\xff\xd9", 2);
+    if(data.indexOf(jp2Footer) > -1)
+    {
+        UpdateProgress(tr("Finished!"), data.size());
+        transmissionState = TransmissionState::Ready;
+        totalBytesReceived = 0;
+    }
+
+    if(transmissionState == TransmissionState::Receiving)
+    {
+        UpdateProgress(tr("Downloading new photo..."), data.size());
+    }
+}
+
+void MainWindow::UpdateProgress(QString message, quint16 bytesReceived)
+{
+    QString formattedSize = locale().formattedDataSize(totalBytesReceived += bytesReceived);
+    statusBar()->showMessage(QString("%1 %2").arg(message, formattedSize));
 }

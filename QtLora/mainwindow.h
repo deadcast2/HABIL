@@ -8,6 +8,8 @@ namespace Ui {
     class MainWindow;
 }
 
+enum TransmissionState { Ready, Receiving };
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -15,6 +17,7 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
+    void UpdateProgress(QString message, quint16 bytesReceived);
 
 private slots:
     void readData();
@@ -22,7 +25,8 @@ private slots:
 private:
     Ui::MainWindow *ui;
     QSerialPort *serialPort = nullptr;
-
+    qint16 totalBytesReceived = 0;
+    TransmissionState transmissionState = TransmissionState::Ready;
 };
 
 #endif // MAINWINDOW_H
