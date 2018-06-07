@@ -20,6 +20,7 @@ void resetRadio()
 RH_RF95 *configureRadio(RH_RF95 *radio)
 {
     radio->setFrequency(RF_FREQUENCY);
+    radio->setTxPower(23, false);
     radio->setThisAddress(RF_NODE_ID);
     radio->setHeaderFrom(RF_NODE_ID);
     radio->setHeaderTo(RF_GATEWAY_ID);
@@ -54,11 +55,11 @@ int main()
     FILE *latestPhoto = fopen("photo.jp2", "rb");
     if(!latestPhoto) return 1;
     
-    uint8_t payloadBuffer[RH_RF95_MAX_MESSAGE_LEN];
+    uint8_t payloadBuffer[RH_RF95_MAX_MESSAGE_LEN/2];
     while(fread(payloadBuffer, 1, sizeof(payloadBuffer), latestPhoto))
     {
         radio->send(payloadBuffer, sizeof(payloadBuffer));
-        bcm2835_delay(2000);
+        bcm2835_delay(1000);
     }
     
     fclose(latestPhoto);
