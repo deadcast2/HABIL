@@ -56,22 +56,22 @@ int main()
     if(!latestPhoto) return 1;
 
     // Begin transmission
-    const uint8_t *beginSignal = "begin";
-    radio->send(beginSignal, sizeof(beginSignal));
+    radio->send((const uint8_t*)"begin", 5);
     bcm2835_delay(5000);
     
     // Send captured photo data
-    uint8_t payloadBuffer[RH_RF95_MAX_MESSAGE_LEN];
-    while(fread(payloadBuffer, 1, sizeof(payloadBuffer), latestPhoto))
+    uint8_t payloadBuffer[128];
+    while(true)
     {
-        radio->send(payloadBuffer, sizeof(payloadBuffer));
-        bcm2835_delay(5000);
+        int len = fread(payloadBuffer, 1, 128, latestPhoto);
+        if(len == 0) break;
+        radio->send(payloadBuffer, len);
+        bcm2835_delay(1500);
     }
 
     // End transmission
-    const uint8_t *endSignal = "end";
-    radio->send(endSignal, sizeof(endSignal));
     bcm2835_delay(5000);
+    radio->send((const uint8_t*)"end", 3);
     
     // Cleanup
     fclose(latestPhoto);
