@@ -54,14 +54,26 @@ int main()
     
     FILE *latestPhoto = fopen("photo.jp2", "rb");
     if(!latestPhoto) return 1;
+
+    // Begin transmission
+    const uint8_t *beginSignal = "begin";
+    radio->send(beginSignal, sizeof(beginSignal));
+    bcm2835_delay(5000);
     
-    uint8_t payloadBuffer[RH_RF95_MAX_MESSAGE_LEN/2];
+    // Send captured photo data
+    uint8_t payloadBuffer[RH_RF95_MAX_MESSAGE_LEN];
     while(fread(payloadBuffer, 1, sizeof(payloadBuffer), latestPhoto))
     {
         radio->send(payloadBuffer, sizeof(payloadBuffer));
-        bcm2835_delay(1000);
+        bcm2835_delay(5000);
     }
+
+    // End transmission
+    const uint8_t *endSignal = "end";
+    radio->send(endSignal, sizeof(endSignal));
+    bcm2835_delay(5000);
     
+    // Cleanup
     fclose(latestPhoto);
     free(radio);
     return !bcm2835_close();
