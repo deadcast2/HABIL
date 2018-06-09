@@ -38,5 +38,3 @@ void loop()
   uint8_t len = sizeof(buf);
   if (radio.recv(buf, &len)) Serial.write(buf, len);
 }
-
-
