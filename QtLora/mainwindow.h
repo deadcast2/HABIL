@@ -27,6 +27,7 @@ private:
     QSerialPort *serialPort = nullptr;
     qint16 totalBytesReceived = 0;
     TransmissionState transmissionState = TransmissionState::Ready;
+    QByteArray receivedPhotoData;
 };
 
 #endif // MAINWINDOW_H

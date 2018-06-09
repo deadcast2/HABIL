@@ -33,22 +33,41 @@ void MainWindow::readData()
 {
     const QByteArray data = serialPort->readAll();
 
-    QByteArray jp2Header = QByteArray("\x6a\x50", 2);
+    QByteArray startBytes = QByteArray("\x6A\x70\x32", 3);
+    QByteArray endBytes = QByteArray("\xd9", 1);
     if(data.indexOf(jp2Header) > -1)
     {
         transmissionState = TransmissionState::Receiving;
     }
-
-    QByteArray jp2Footer = QByteArray("\xff\xd9", 2);
-    if(data.indexOf(jp2Footer) > -1)
+    else if(data.endsWith(jp2Footer))
     {
+        receivedPhotoData.append(data);
         UpdateProgress(tr("Finished!"), data.size());
         transmissionState = TransmissionState::Ready;
         totalBytesReceived = 0;
+
+        QImage image(160, 120, QImage::Format_RGB32);
+        if(!image.loadFromData(receivedPhotoData))
+        {
+            QMessageBox::critical(this, tr("Error"), tr("Could not load new photo"));
+        }
+        else
+        {
+            QPixmap map(160, 120);
+            if(!map.convertFromImage(image))
+            {
+                QMessageBox::critical(this, tr("Error"), tr("Could not create pixmap"));
+            }
+            else
+            {
+                ui->photoLabel->setPixmap(map);
+            }
+        }
     }
 
     if(transmissionState == TransmissionState::Receiving)
     {
+        receivedPhotoData.append(data);
         UpdateProgress(tr("Downloading new photo..."), data.size());
     }
 }
