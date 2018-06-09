@@ -28,6 +28,7 @@ private:
     qint16 totalBytesReceived = 0;
     TransmissionState transmissionState = TransmissionState::Ready;
     QByteArray receivedPhotoData;
+    QByteArray totalReceivedData;
 };
 
 #endif // MAINWINDOW_H

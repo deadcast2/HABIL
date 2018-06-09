@@ -2,6 +2,8 @@
 #include "ui_mainwindow.h"
 
 #include <QMessageBox>
+#include <QFile>
+
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -18,9 +20,9 @@ MainWindow::MainWindow(QWidget *parent) :
     serialPort->setFlowControl(QSerialPort::NoFlowControl);
     if(!serialPort->open(QIODevice::ReadOnly))
     {
-        QMessageBox::critical(this, tr("Error"), tr("Could not open COM3 port"));
+        QMessageBox::critical(this, tr("Error"), tr("Could not open COM3 port. Try again."));
+        exit(EXIT_FAILURE);
     }
-
     connect(serialPort, &QSerialPort::readyRead, this, &MainWindow::readData);
 }
 
@@ -32,37 +34,34 @@ MainWindow::~MainWindow()
 void MainWindow::readData()
 {
     const QByteArray data = serialPort->readAll();
+    totalReceivedData.append(data);
 
-    QByteArray startBytes = QByteArray("\x6A\x70\x32", 3);
-    QByteArray endBytes = QByteArray("\xd9", 1);
-    if(data.indexOf(jp2Header) > -1)
+    if(totalReceivedData.contains("begin") && transmissionState == TransmissionState::Ready)
     {
+        UpdateProgress(tr("Incoming transmission..."), 0);
         transmissionState = TransmissionState::Receiving;
+        return;
     }
-    else if(data.endsWith(jp2Footer))
-    {
-        receivedPhotoData.append(data);
-        UpdateProgress(tr("Finished!"), data.size());
-        transmissionState = TransmissionState::Ready;
-        totalBytesReceived = 0;
 
-        QImage image(160, 120, QImage::Format_RGB32);
-        if(!image.loadFromData(receivedPhotoData))
+    if(totalReceivedData.contains("end") && transmissionState == TransmissionState::Receiving)
+    {
+        transmissionState = TransmissionState::Ready;
+        UpdateProgress(tr("Finished!"), 0);
+
+        QFile file("photo.jp2");
+        if (file.open(QIODevice::WriteOnly))
         {
-            QMessageBox::critical(this, tr("Error"), tr("Could not load new photo"));
+            file.write(receivedPhotoData);
+            file.close();
         }
-        else
-        {
-            QPixmap map(160, 120);
-            if(!map.convertFromImage(image))
-            {
-                QMessageBox::critical(this, tr("Error"), tr("Could not create pixmap"));
-            }
-            else
-            {
-                ui->photoLabel->setPixmap(map);
-            }
-        }
+
+        QPixmap map("photo.jp2");
+        ui->photoLabel->setPixmap(map);
+
+        receivedPhotoData.clear();
+        totalReceivedData.clear();
+        totalBytesReceived = 0;
+        return;
     }
 
     if(transmissionState == TransmissionState::Receiving)

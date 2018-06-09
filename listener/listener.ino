@@ -1,26 +1,29 @@
-#define RFM69_INT     3
-#define RFM69_CS      4
-#define RFM69_RST     2
+#define RF95_INT     3
+#define RF95_CS      4
+#define RF95_RST     2
 
 #include <SPI.h>
 #include <RH_RF95.h>
 
-RH_RF95 radio(RFM69_CS, RFM69_INT);
+RH_RF95 radio(RF95_CS, RF95_INT);
 
 void resetRadio()
 {
-  pinMode(2, OUTPUT);
-  digitalWrite(2, LOW);
-  delay(50);
-  digitalWrite(2, HIGH);
-  delay(50);
+  pinMode(RF95_RST, OUTPUT);
+  digitalWrite(RF95_RST, HIGH);
+
+  while (!Serial);
+  Serial.begin(9600);
+
+  digitalWrite(RF95_RST, LOW);
+  delayMicroseconds(100);
+  digitalWrite(RF95_RST, HIGH);
+  delay(5);
 }
 
 void initRadio()
 {
-  Serial.begin(9600);
-  while (!Serial);
-  if (!radio.init()) Serial.println("Radio init failed");  
+  radio.init(); 
   radio.setFrequency(868.0);
   radio.setThisAddress(1);
 }
