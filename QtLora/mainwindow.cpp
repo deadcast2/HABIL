@@ -12,7 +12,6 @@ MainWindow::MainWindow(QWidget *parent) :
     serialPort(new QSerialPort(this))
 {
     ui->setupUi(this);
-
     serialPort->setPortName("COM3");
     serialPort->setBaudRate(QSerialPort::Baud9600);
     serialPort->setDataBits(QSerialPort::Data8);
@@ -58,6 +57,7 @@ void MainWindow::readData()
             {
                 QPixmap jp2 = QPixmap::fromImage(*image);
                 ui->photoLabel->setPixmap(jp2);
+                free(image);
             }
         }
 
