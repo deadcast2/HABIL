@@ -17,13 +17,16 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
-    void UpdateProgress(QString message, quint16 bytesReceived);
-    bool SavePhoto(QDateTime timestamp);
-    bool ShowPhoto();
-    void PrepareForNextTransmission();
+    void loadComPortList();
+    void refreshComPorts();
+    void updateProgress(QString message, quint16 bytesReceived);
+    bool savePhoto(QDateTime timestamp);
+    bool showPhoto();
+    void prepareForNextTransmission();
 
 private slots:
     void readData();
+    void comPortChanged();
 
 private:
     Ui::MainWindow *ui;

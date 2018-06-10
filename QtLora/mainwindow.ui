@@ -7,13 +7,13 @@
     <x>0</x>
     <y>0</y>
     <width>360</width>
-    <height>270</height>
+    <height>300</height>
    </rect>
   </property>
   <property name="maximumSize">
    <size>
-    <width>400</width>
-    <height>270</height>
+    <width>360</width>
+    <height>300</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -46,6 +46,29 @@
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="comboBox">
+    <property name="geometry">
+     <rect>
+      <x>280</x>
+      <y>230</y>
+      <width>69</width>
+      <height>21</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton">
+    <property name="geometry">
+     <rect>
+      <x>174</x>
+      <y>230</y>
+      <width>101</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Refresh port list</string>
     </property>
    </widget>
   </widget>

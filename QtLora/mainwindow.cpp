@@ -8,6 +8,7 @@
 #include <QStandardPaths>
 #include <QDateTime>
 #include <QDir>
+#include <QSerialPortInfo>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -15,7 +16,38 @@ MainWindow::MainWindow(QWidget *parent) :
     serialPort(new QSerialPort(this))
 {
     ui->setupUi(this);
-    serialPort->setPortName("COM3");
+    loadComPortList();
+    comPortChanged();
+    connect(ui->pushButton, &QPushButton::clicked, this, &MainWindow::refreshComPorts);
+    connect(ui->comboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::comPortChanged);
+    connect(serialPort, &QSerialPort::readyRead, this, &MainWindow::readData);
+}
+
+MainWindow::~MainWindow()
+{
+    delete ui;
+}
+
+void MainWindow::loadComPortList()
+{
+    QList<QSerialPortInfo> ports = QSerialPortInfo::availablePorts();
+    ui->comboBox->clear();
+    for(int i = 0; i < ports.size(); i++)
+    {
+        ui->comboBox->addItem(ports[i].portName());
+    }
+}
+
+void MainWindow::refreshComPorts()
+{
+    loadComPortList();
+}
+
+void MainWindow::comPortChanged()
+{
+    if(ui->comboBox->currentText() == "") return;
+    if(serialPort->isOpen()) serialPort->close();
+    serialPort->setPortName(ui->comboBox->currentText());
     serialPort->setBaudRate(QSerialPort::Baud9600);
     serialPort->setDataBits(QSerialPort::Data8);
     serialPort->setParity(QSerialPort::NoParity);
@@ -23,15 +55,8 @@ MainWindow::MainWindow(QWidget *parent) :
     serialPort->setFlowControl(QSerialPort::NoFlowControl);
     if(!serialPort->open(QIODevice::ReadOnly))
     {
-        QMessageBox::critical(this, tr("Error"), tr("Could not open COM3 port. Try again."));
-        exit(EXIT_FAILURE);
+        QMessageBox::critical(this, tr("Error"), QString("Could not open %1 port.").arg(ui->comboBox->currentText()));
     }
-    connect(serialPort, &QSerialPort::readyRead, this, &MainWindow::readData);
-}
-
-MainWindow::~MainWindow()
-{
-    delete ui;
 }
 
 void MainWindow::readData()
@@ -41,7 +66,7 @@ void MainWindow::readData()
 
     if(totalReceivedData.contains("begin") && transmissionState == TransmissionState::Ready)
     {
-        UpdateProgress(tr("Incoming transmission..."), 0);
+        updateProgress(tr("Incoming transmission..."), 0);
         transmissionState = TransmissionState::Receiving;
         return;
     }
@@ -50,21 +75,21 @@ void MainWindow::readData()
     {
         transmissionState = TransmissionState::Ready;
         QDateTime finishedAt = QDateTime::currentDateTime();
-        UpdateProgress(QString("Finished! %1").arg(finishedAt.toString()), 0);
-        SavePhoto(finishedAt);
-        ShowPhoto();
-        PrepareForNextTransmission();
+        updateProgress(QString("Finished! %1").arg(finishedAt.toString()), 0);
+        savePhoto(finishedAt);
+        showPhoto();
+        prepareForNextTransmission();
         return;
     }
 
     if(transmissionState == TransmissionState::Receiving)
     {
         receivedPhotoData.append(data);
-        UpdateProgress(tr("Receiving new photo..."), data.size());
+        updateProgress(tr("Receiving new photo..."), data.size());
     }
 }
 
-bool MainWindow::ShowPhoto()
+bool MainWindow::showPhoto()
 {
     QBuffer buffer(&receivedPhotoData);
     if(buffer.open(QIODevice::ReadOnly))
@@ -81,7 +106,7 @@ bool MainWindow::ShowPhoto()
     return false;
 }
 
-bool MainWindow::SavePhoto(QDateTime timestamp)
+bool MainWindow::savePhoto(QDateTime timestamp)
 {
     QString photoPath = QString("%1/HABIL").arg(QStandardPaths::writableLocation(QStandardPaths::PicturesLocation));
     QDir photoDirectory;
@@ -99,14 +124,14 @@ bool MainWindow::SavePhoto(QDateTime timestamp)
     return false;
 }
 
-void MainWindow::PrepareForNextTransmission()
+void MainWindow::prepareForNextTransmission()
 {
     receivedPhotoData.clear();
     totalReceivedData.clear();
     totalBytesReceived = 0;
 }
 
-void MainWindow::UpdateProgress(QString message, quint16 bytesReceived)
+void MainWindow::updateProgress(QString message, quint16 bytesReceived)
 {
     QString formattedSize = locale().formattedDataSize(totalBytesReceived += bytesReceived);
     statusBar()->showMessage(QString("%1 (%2)").arg(message, formattedSize));
