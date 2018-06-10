@@ -5,6 +5,9 @@
 #include <QMessageBox>
 #include <QFile>
 #include <QBuffer>
+#include <QStandardPaths>
+#include <QDateTime>
+#include <QDir>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -51,14 +54,30 @@ void MainWindow::readData()
         QBuffer buffer(&receivedPhotoData);
         if(buffer.open(QIODevice::ReadOnly))
         {
+            QString photoPath = QString("%1/HABIL")
+                    .arg(QStandardPaths::writableLocation(QStandardPaths::PicturesLocation));
+            QDir photoDirectory;
+            if(photoDirectory.mkpath(photoPath))
+            {
+                QString photoName = QString("%1/%2.jp2")
+                        .arg(photoPath)
+                        .arg(QDateTime::currentDateTime().toString("MM-dd-yy-h-ma"));
+                QFile savedCopy(photoName);
+                if(savedCopy.open(QFile::WriteOnly))
+                {
+                    savedCopy.write(receivedPhotoData);
+                    savedCopy.close();
+                }
+            }
+
             QtJP2OpenJPEGImageHandler handler(&buffer);
             QImage *image = new QImage();
             if(handler.read(image))
             {
                 QPixmap jp2 = QPixmap::fromImage(*image);
                 ui->photoLabel->setPixmap(jp2);
-                free(image);
             }
+            free(image);
         }
 
         receivedPhotoData.clear();
