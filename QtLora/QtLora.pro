@@ -25,10 +25,17 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
         main.cpp \
-        mainwindow.cpp
+        mainwindow.cpp \
+    QtJP2OpenJPEGImageHandler.cpp
 
 HEADERS += \
-        mainwindow.h
+        mainwindow.h \
+    QtJP2OpenJPEGImageHandler.h
 
 FORMS += \
         mainwindow.ui
+
+win32: LIBS += -L$$PWD/../openjpeg_v1_3_win32/WIN32/LibOpenJPEG/ -lOpenJPEG -lLibOpenJPEG
+
+INCLUDEPATH += $$PWD/../openjpeg_v1_3_win32/WIN32/Include
+DEPENDPATH += $$PWD/../openjpeg_v1_3_win32/WIN32/Include

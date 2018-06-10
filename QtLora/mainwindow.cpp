@@ -1,9 +1,10 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "QtJP2OpenJPEGImageHandler.h"
 
 #include <QMessageBox>
 #include <QFile>
-
+#include <QBuffer>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -48,15 +49,17 @@ void MainWindow::readData()
         transmissionState = TransmissionState::Ready;
         UpdateProgress(tr("Finished!"), 0);
 
-        QFile file("photo.jp2");
-        if (file.open(QIODevice::WriteOnly))
+        QBuffer buffer(&receivedPhotoData);
+        if(buffer.open(QIODevice::ReadOnly))
         {
-            file.write(receivedPhotoData);
-            file.close();
+            QtJP2OpenJPEGImageHandler handler(&buffer);
+            QImage *image = new QImage();
+            if(handler.read(image))
+            {
+                QPixmap jp2 = QPixmap::fromImage(*image);
+                ui->photoLabel->setPixmap(jp2);
+            }
         }
-
-        QPixmap map("photo.jp2");
-        ui->photoLabel->setPixmap(map);
 
         receivedPhotoData.clear();
         totalReceivedData.clear();
