@@ -54,4 +54,4 @@ dkms.conf
 transmit_photo
 *.jpg
 *.jp2
-
+!openjpeg_v1_3_win32/WIN32/LibOpenJPEG/*
