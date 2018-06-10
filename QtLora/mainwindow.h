@@ -18,6 +18,9 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
     void UpdateProgress(QString message, quint16 bytesReceived);
+    bool SavePhoto(QDateTime timestamp);
+    bool ShowPhoto();
+    void PrepareForNextTransmission();
 
 private slots:
     void readData();
