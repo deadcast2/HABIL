@@ -62,13 +62,26 @@
     <property name="geometry">
      <rect>
       <x>174</x>
-      <y>230</y>
+      <y>229</y>
       <width>101</width>
-      <height>21</height>
+      <height>23</height>
      </rect>
     </property>
     <property name="text">
      <string>Refresh port list</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="checkBox">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>230</y>
+      <width>151</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Play beep upon receiving</string>
     </property>
    </widget>
   </widget>

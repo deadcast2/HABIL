@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QtSerialPort/QSerialPort>
+#include <QTimer>
 
 namespace Ui {
     class MainWindow;
@@ -23,10 +24,13 @@ public:
     bool savePhoto(QDateTime timestamp);
     bool showPhoto();
     void prepareForNextTransmission();
+    void startTransmissionTimer();
+    void stopTransmissionTimer();
 
 private slots:
     void readData();
     void comPortChanged();
+    void cancelTransmission();
 
 private:
     Ui::MainWindow *ui;
@@ -35,6 +39,7 @@ private:
     TransmissionState transmissionState = TransmissionState::Ready;
     QByteArray receivedPhotoData;
     QByteArray totalReceivedData;
+    QTimer *transmissionTimer;
 };
 
 #endif // MAINWINDOW_H

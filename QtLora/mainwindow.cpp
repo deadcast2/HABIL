@@ -18,14 +18,23 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     loadComPortList();
     comPortChanged();
+    transmissionTimer = new QTimer(this);
     connect(ui->pushButton, &QPushButton::clicked, this, &MainWindow::refreshComPorts);
     connect(ui->comboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::comPortChanged);
     connect(serialPort, &QSerialPort::readyRead, this, &MainWindow::readData);
+    connect(transmissionTimer, SIGNAL(timeout()), this, SLOT(cancelTransmission()));
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::cancelTransmission()
+{
+    stopTransmissionTimer();
+    updateProgress(tr("Transmission cancelled due to timeout."), 0);
+    prepareForNextTransmission();
 }
 
 void MainWindow::loadComPortList()
@@ -66,14 +75,16 @@ void MainWindow::readData()
 
     if(totalReceivedData.contains("begin") && transmissionState == TransmissionState::Ready)
     {
+        if(ui->checkBox->isChecked()) QApplication::beep();
         updateProgress(tr("Incoming transmission..."), 0);
+        startTransmissionTimer();
         transmissionState = TransmissionState::Receiving;
         return;
     }
 
     if(totalReceivedData.contains("end") && transmissionState == TransmissionState::Receiving)
     {
-        transmissionState = TransmissionState::Ready;
+        stopTransmissionTimer();
         QDateTime finishedAt = QDateTime::currentDateTime();
         updateProgress(QString("Finished! %1").arg(finishedAt.toString()), 0);
         savePhoto(finishedAt);
@@ -86,6 +97,7 @@ void MainWindow::readData()
     {
         receivedPhotoData.append(data);
         updateProgress(tr("Receiving new photo..."), data.size());
+        startTransmissionTimer();
     }
 }
 
@@ -126,6 +138,7 @@ bool MainWindow::savePhoto(QDateTime timestamp)
 
 void MainWindow::prepareForNextTransmission()
 {
+    transmissionState = TransmissionState::Ready;
     receivedPhotoData.clear();
     totalReceivedData.clear();
     totalBytesReceived = 0;
@@ -134,5 +147,15 @@ void MainWindow::prepareForNextTransmission()
 void MainWindow::updateProgress(QString message, quint16 bytesReceived)
 {
     QString formattedSize = locale().formattedDataSize(totalBytesReceived += bytesReceived);
-    statusBar()->showMessage(QString("%1 (%2)").arg(message, formattedSize));
+    statusBar()->showMessage(QString("%1 (%2 received)").arg(message, formattedSize));
+}
+
+void MainWindow::startTransmissionTimer()
+{
+    transmissionTimer->start(15000); // 15 seconds
+}
+
+void MainWindow::stopTransmissionTimer()
+{
+    transmissionTimer->stop();
 }
