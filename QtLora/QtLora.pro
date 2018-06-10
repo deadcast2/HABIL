@@ -8,6 +8,7 @@ QT       += core gui serialport
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
+RC_FILE = QtLora.rc
 TARGET = QtLora
 TEMPLATE = app
 
@@ -39,3 +40,7 @@ win32: LIBS += -L$$PWD/../openjpeg_v1_3_win32/WIN32/LibOpenJPEG/ -lOpenJPEG -lLi
 
 INCLUDEPATH += $$PWD/../openjpeg_v1_3_win32/WIN32/Include
 DEPENDPATH += $$PWD/../openjpeg_v1_3_win32/WIN32/Include
+
+DISTFILES += \
+    balloon.ico \
+    QtLora.rc
