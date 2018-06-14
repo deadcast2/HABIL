@@ -30,6 +30,7 @@ public:
     void startLogging();
     void stopLogging();
     void writeToLog(QByteArray data);
+    void signalReceived();
 
 private slots:
     void readData();

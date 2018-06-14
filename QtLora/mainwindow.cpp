@@ -76,9 +76,11 @@ void MainWindow::readData()
     const QByteArray data = serialPort->readAll();
     totalReceivedData.append(data);
     writeToLog(data);
+    signalReceived();
 
     if(totalReceivedData.contains("begin") && transmissionState == TransmissionState::Ready)
     {
+        prepareForNextTransmission();
         if(ui->checkBox->isChecked()) QApplication::beep();
         updateProgress(tr("Incoming transmission..."), 0);
         startTransmissionTimer();
@@ -86,8 +88,7 @@ void MainWindow::readData()
         return;
     }
 
-    if(receivedPhotoData.size() > 0 && totalReceivedData.contains("end")
-            && transmissionState == TransmissionState::Receiving)
+    if(totalReceivedData.contains("end") && transmissionState == TransmissionState::Receiving)
     {
         stopTransmissionTimer();
         QDateTime finishedAt = QDateTime::currentDateTime();
@@ -178,4 +179,10 @@ void MainWindow::stopLogging()
 void MainWindow::writeToLog(QByteArray data)
 {
     if(logFile.isOpen()) logFile.write(data);
+}
+
+void MainWindow::signalReceived()
+{
+    ui->signalLabel->setEnabled(true);
+    QTimer::singleShot(500, [&]{ ui->signalLabel->setEnabled(false); });
 }

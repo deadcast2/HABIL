@@ -44,3 +44,6 @@ DEPENDPATH += $$PWD/../openjpeg_v1_3_win32/WIN32/Include
 DISTFILES += \
     balloon.ico \
     QtLora.rc
+
+RESOURCES += \
+    qtres.qrc

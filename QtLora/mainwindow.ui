@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>360</width>
-    <height>295</height>
+    <height>320</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -28,7 +28,7 @@
   <property name="maximumSize">
    <size>
     <width>360</width>
-    <height>310</height>
+    <height>320</height>
    </size>
   </property>
   <property name="contextMenuPolicy">
@@ -102,6 +102,25 @@
      <string>Play beep upon receiving</string>
     </property>
    </widget>
+   <widget class="QLabel" name="signalLabel">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>320</x>
+      <y>260</y>
+      <width>24</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="pixmap">
+     <pixmap resource="qtres.qrc">:/signal.png</pixmap>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
@@ -120,6 +139,8 @@
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources/>
+ <resources>
+  <include location="qtres.qrc"/>
+ </resources>
  <connections/>
 </ui>
