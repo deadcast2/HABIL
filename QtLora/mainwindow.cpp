@@ -86,7 +86,8 @@ void MainWindow::readData()
         return;
     }
 
-    if(totalReceivedData.contains("end") && transmissionState == TransmissionState::Receiving)
+    if(receivedPhotoData.size() > 0 && totalReceivedData.contains("end")
+            && transmissionState == TransmissionState::Receiving)
     {
         stopTransmissionTimer();
         QDateTime finishedAt = QDateTime::currentDateTime();
@@ -114,8 +115,7 @@ bool MainWindow::showPhoto()
         QImage image;
         if(handler.read(&image))
         {
-            QPixmap pixmap = QPixmap::fromImage(image);
-            ui->photoLabel->setPixmap(pixmap);
+            ui->photoLabel->setPixmap(QPixmap::fromImage(image));
             return true;
         }
     }
@@ -167,7 +167,7 @@ void MainWindow::stopTransmissionTimer()
 void MainWindow::startLogging()
 {
     logFile.setFileName("log.txt");
-    logFile.open(QFile::WriteOnly);
+    logFile.open(QFile::WriteOnly | QFile::Truncate);
 }
 
 void MainWindow::stopLogging()
