@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QtSerialPort/QSerialPort>
 #include <QTimer>
+#include <QFile>
 
 namespace Ui {
     class MainWindow;
@@ -26,6 +27,9 @@ public:
     void prepareForNextTransmission();
     void startTransmissionTimer();
     void stopTransmissionTimer();
+    void startLogging();
+    void stopLogging();
+    void writeToLog(QByteArray data);
 
 private slots:
     void readData();
@@ -40,6 +44,7 @@ private:
     QByteArray receivedPhotoData;
     QByteArray totalReceivedData;
     QTimer *transmissionTimer;
+    QFile logFile;
 };
 
 #endif // MAINWINDOW_H

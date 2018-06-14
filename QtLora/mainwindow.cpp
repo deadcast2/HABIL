@@ -16,8 +16,10 @@ MainWindow::MainWindow(QWidget *parent) :
     serialPort(new QSerialPort(this))
 {
     ui->setupUi(this);
+    setWindowFlags(Qt::MSWindowsFixedSizeDialogHint);
     loadComPortList();
     comPortChanged();
+    startLogging();
     transmissionTimer = new QTimer(this);
     connect(ui->pushButton, &QPushButton::clicked, this, &MainWindow::refreshComPorts);
     connect(ui->comboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::comPortChanged);
@@ -27,6 +29,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+    stopLogging();
     delete ui;
 }
 
@@ -72,6 +75,7 @@ void MainWindow::readData()
 {
     const QByteArray data = serialPort->readAll();
     totalReceivedData.append(data);
+    writeToLog(data);
 
     if(totalReceivedData.contains("begin") && transmissionState == TransmissionState::Ready)
     {
@@ -86,7 +90,7 @@ void MainWindow::readData()
     {
         stopTransmissionTimer();
         QDateTime finishedAt = QDateTime::currentDateTime();
-        updateProgress(QString("Finished! %1").arg(finishedAt.toString()), 0);
+        updateProgress(QString("Finished @ %1!").arg(finishedAt.toString("hh:mma")), 0);
         savePhoto(finishedAt);
         showPhoto();
         prepareForNextTransmission();
@@ -124,7 +128,7 @@ bool MainWindow::savePhoto(QDateTime timestamp)
     QDir photoDirectory;
     if(photoDirectory.mkpath(photoPath))
     {
-        QString photoName = QString("%1/%2.jp2").arg(photoPath, timestamp.toString("MM-dd-yy-h-ma"));
+        QString photoName = QString("%1/%2.jp2").arg(photoPath, timestamp.toString("MM-dd-yy-hh-mma"));
         QFile savedCopy(photoName);
         if(savedCopy.open(QFile::WriteOnly))
         {
@@ -152,10 +156,26 @@ void MainWindow::updateProgress(QString message, quint16 bytesReceived)
 
 void MainWindow::startTransmissionTimer()
 {
-    transmissionTimer->start(15000); // 15 seconds
+    transmissionTimer->start(30000); // 30 seconds
 }
 
 void MainWindow::stopTransmissionTimer()
 {
     transmissionTimer->stop();
+}
+
+void MainWindow::startLogging()
+{
+    logFile.setFileName("log.txt");
+    logFile.open(QFile::WriteOnly);
+}
+
+void MainWindow::stopLogging()
+{
+    if(logFile.isOpen()) logFile.close();
+}
+
+void MainWindow::writeToLog(QByteArray data)
+{
+    if(logFile.isOpen()) logFile.write(data);
 }
